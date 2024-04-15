@@ -31,7 +31,7 @@ int main()
 		Win();
 	}
 	Print();
-	printf("\nPress any key to exit"); 
+	printf("\nPress ENTER to exit"); 
 	getchar();
 	getchar();
 	return 0;
