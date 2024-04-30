@@ -25,7 +25,12 @@ int main()
 	Print();
 	while (over)
 	{
-		system("cls");
+		#ifdef __WIN32
+			system("cls");
+		#endif
+		#ifdef __linux__
+			system("clear");
+		#endif
 		Print();
 		Open();
 		Win();
@@ -47,7 +52,12 @@ void Make()
 		scanf("%d", &num);
 		if (num > size_l * size_c)//判定雷数是否超过格子总数
 		{
-			system("cls");
+			#ifdef _WIN32
+				system("cls");
+			#endif
+			#ifdef __linux__
+				system("clear");
+			#endif
 			printf("**ERROR:Illegal values!**\n");
 		}
 		else break;
@@ -90,21 +100,43 @@ void Print()
 	printf("\n");
 	for (i = 1; i <= size_l; i++)
 	{
-		printf("\n");
+		//printf("\n");
 		printf("%2d> ", i);//输出行坐标及分隔线
 		for (j = 1; j <= size_c; j++)
 		{
+			//printf("  ");
 			if (floors[i][j])
 			{
-				if (box[i][j] > 0 && box[i][j] < 9)
-					printf("\033[1;32;40m  %d  \033[0m", box[i][j]);//以粗体绿色输出数字
-				else if (box[i][j] == 9)
-					printf("\033[1;31;40m  X  \033[0m");//以粗体红色输出地雷
-				else
+				if (box[i][j] == 9)
+					printf("\033[1;30;41m");//以粗体红色输出地雷
+				else if (box[i][j] == 8)
+					printf("\033[1;37m", box[i][j]);
+				else if (box[i][j] == 7)
+					printf("\033[1;30m", box[i][j]);
+				else if (box[i][j] == 6)
+					printf("\033[1;36m", box[i][j]);
+				else if (box[i][j] == 5)
+					printf("\033[1;33m", box[i][j]);
+				else if (box[i][j] == 4)
+					printf("\033[1;35m", box[i][j]);
+				else if (box[i][j] == 3)
+					printf("\033[1;31m", box[i][j]);
+				else if (box[i][j] == 2)
+					printf("\033[1;32m", box[i][j]);
+				else if (box[i][j] == 1)
+					printf("\033[1;34m", box[i][j]);
+				
+				if (box[i][j] == 0)
 					printf("     ");//以空格代替0输出被打开的空格子
+				else if (box[i][j]>0&&box[i][j]<9)
+					printf("  %d  ",box[i][j]);
+				else if (box[i][j] == 9)
+					printf("  X  ");//以粗体红色输出地雷
+				printf("\033[0m");
 			}
 			else
 				printf("  ?  ");//输出未打开的格子
+			//printf("  ");
 		}
 		printf("\n");
 	}
@@ -158,8 +190,13 @@ void Open()
 void Lose(int x, int y)
 {
 	int i, j;
-	system("cls");
-	printf("You click the mine in \033[1;31;40m(%d,%d)\033[0m. You lose.\n", x, y);
+	#ifdef __WIN32
+		system("cls");
+	#endif
+	#ifdef __linux__
+		system("clear");
+	#endif
+	printf("You click the mine in \033[1;31m(%d,%d)\033[0m. You lose.\n", x, y);
 	for (i = 1; i <= size_l; i++)//打开全图格子
 	{
 		for (j = 1; j <= size_c; j++)
@@ -185,7 +222,12 @@ void Win()
 	if (sum == num)//判定游戏胜利
 	{
 		over = 0;
-		system("cls");
+		#ifdef __WIN32
+			system("cls");
+		#endif
+		#ifdef __linux__
+			system("clear");
+		#endif
 		printf("You win!!!\n");
 		for (i = 1; i <= size_l; i++)
 		{
