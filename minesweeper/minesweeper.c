@@ -1,6 +1,8 @@
 /*
-author:ECNU_10234507025
-*/
+ * author:ChiyoYuki
+ * time:2024/04/30 11:58
+ * version:2.0.0
+ */
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -8,13 +10,14 @@ author:ECNU_10234507025
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#ifdef __linux__
 #include <termio.h>
-#ifdef __WIN32
+#else
 #include <conio.h>
 #endif
 
 int box[32][32], floors[32][32];//box保存格子的类型，floor判断是否被打开
-int over,X=1,Y=1;//判断游戏是否结束
+int over, X = 1, Y = 1;//判断游戏是否结束
 int size_l, size_c, num; // size:[1,30]
 
 void Make();  // 生成雷
@@ -25,28 +28,29 @@ void Win();//判断游戏是否满足胜利条件
 void Click();
 void Clear();
 #ifdef __linux__
-int getch(void);
+int _getch(void);
 #endif
 
 int main()
 {
 	Make();
 	Print();
-	while (over==0)
+	while (over == 0)
 	{
 		Clear();
 		Print();
 		//scanf("%d%d", &X, &Y);//获取将要打开的格子坐标
 		Click();
-		Open(X,Y);
+		Open(X, Y);
 		Win();
 	}
 	Print();
-	if(over==1)
+	if (over == 1)
 		printf("You \033[1;32mWIN\033[0m!!!\n");
-	if(over==-1)
+	if (over == -1)
 		printf("You click the mine in \033[1;31m(%d,%d)\033[0m. You \033[1;31mLOSE\033[0m.\n", X, Y);
-	printf("\nPress ENTER to exit"); 
+	printf("\nPress ENTER to exit");
+	getchar();
 	getchar();
 	return 0;
 }
@@ -128,20 +132,20 @@ void Print()
 					printf("\033[1;32m", box[i][j]);
 				else if (box[i][j] == 1)
 					printf("\033[1;34m", box[i][j]);
-				
-				if(i==X&&j==Y)
+
+				if (i == X && j == Y)
 					printf(" >");
 				else
 					printf("  ");
 
 				if (box[i][j] == 0)
 					printf(" ");//以空格代替0输出被打开的空格子
-				else if (box[i][j]>0&&box[i][j]<9)
-					printf("%d",box[i][j]);
+				else if (box[i][j] > 0 && box[i][j] < 9)
+					printf("%d", box[i][j]);
 				else if (box[i][j] == 9)
 					printf("X");//以粗体红色输出地雷
-				
-				if(i==X&&j==Y)
+
+				if (i == X && j == Y)
 					printf("< ");
 				else
 					printf("  ");
@@ -149,12 +153,12 @@ void Print()
 			}
 			else
 			{
-				if(i==X&&j==Y)
+				if (i == X && j == Y)
 					printf(" >");
 				else
 					printf("  ");
 				printf("?");//输出未打开的格子
-				if(i==X&&j==Y)
+				if (i == X && j == Y)
 					printf("< ");
 				else
 					printf("  ");
@@ -164,7 +168,7 @@ void Print()
 	}
 }
 
-void Open(int x,int y)
+void Open(int x, int y)
 {
 	int i, j, k, l;
 	bool ok = 1;
@@ -235,7 +239,7 @@ void Win()
 	}
 	if (sum == num)//判定游戏胜利
 	{
-		over =1;
+		over = 1;
 		Clear();
 		for (i = 1; i <= size_l; i++)
 		{
@@ -250,28 +254,28 @@ void Win()
 void Click()
 {
 	char delta;
-	while(1)
+	while (1)
 	{
 		printf("↑ :W/K/8   ↓ :S/J/2    ← :A/H/4    → :D/L/6\nconfirm:Z/SPACE\n");
-		delta=getch();
-		if(delta=='Z'||delta=='z'||delta==' ')
+		delta = _getch();
+		if (delta == 'Z' || delta == 'z' || delta == ' ')
 			return;
-		if((delta=='W'||delta=='w'||delta=='8'||delta=='k'||delta=='K')&&X>0)
-			X--;	
-		if((delta=='S'||delta=='s'||delta=='2'||delta=='j'||delta=='K')&&X<=size_l)
+		if ((delta == 'W' || delta == 'w' || delta == '8' || delta == 'k' || delta == 'K') && X > 0)
+			X--;
+		if ((delta == 'S' || delta == 's' || delta == '2' || delta == 'j' || delta == 'K') && X <= size_l)
 			X++;
-		if((delta=='A'||delta=='a'||delta=='4'||delta=='h'||delta=='H')&&Y>0)
+		if ((delta == 'A' || delta == 'a' || delta == '4' || delta == 'h' || delta == 'H') && Y > 0)
 			Y--;
-		if((delta=='D'||delta=='d'||delta=='6'||delta=='l'||delta=='L')&&Y<=size_c)
+		if ((delta == 'D' || delta == 'd' || delta == '6' || delta == 'l' || delta == 'L') && Y <= size_c)
 			Y++;
-		if(X==size_l+1)
-			X=1;
-		if(X==0)
-			X=size_l;
-		if(Y==size_c+1)
-			Y=1;
-		if(Y==0)
-			Y=size_c;
+		if (X == size_l + 1)
+			X = 1;
+		if (X == 0)
+			X = size_l;
+		if (Y == size_c + 1)
+			Y = 1;
+		if (Y == 0)
+			Y = size_c;
 		Clear();
 		Print();
 	}
@@ -279,28 +283,27 @@ void Click()
 
 void Clear()
 {
-	#ifdef __WIN32
-	system("cls");
-	#endif
-	#ifdef __linux__
+#ifdef __linux__
 	system("clear");
-	#endif
+#else
+	system("cls");
+#endif
 }
 
 #ifdef __linux__
-int getch(void)
+int _getch(void)
 {
-	struct termios tm,tm_old;
-	int fd = 0,ch;
+	struct termios tm, tm_old;
+	int fd = 0, ch;
 
-	if(tcgetattr(fd,&tm) < 0)
+	if (tcgetattr(fd, &tm) < 0)
 		return -1;
-	tm_old=tm;
+	tm_old = tm;
 	cfmakeraw(&tm);
-	if(tcsetattr(fd,TCSANOW,&tm) < 0)
+	if (tcsetattr(fd, TCSANOW, &tm) < 0)
 		return -1;
-	ch=getchar();
-	if(tcsetattr(fd,TCSANOW,&tm_old) < 0)
+	ch = getchar();
+	if (tcsetattr(fd, TCSANOW, &tm_old) < 0)
 		return -1;
 	return ch;
 }
