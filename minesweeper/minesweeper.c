@@ -8,36 +8,45 @@ author:ECNU_10234507025
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <termio.h>
+#ifdef __WIN32
+#include <conio.h>
+#endif
 
 int box[32][32], floors[32][32];//box保存格子的类型，floor判断是否被打开
-bool over = 1;//判断游戏是否结束
+int over,X=1,Y=1;//判断游戏是否结束
 int size_l, size_c, num; // size:[1,30]
 
 void Make();  // 生成雷
 void Print(); // 输出当前情况
-void Open();//打开格子
-void Lose(int x, int y);//判定游戏失败 输出被点击的地雷坐标
+void Open(int x, int y);//打开格子
+void Lose();//判定游戏失败 输出被点击的地雷坐标
 void Win();//判断游戏是否满足胜利条件
+void Click();
+void Clear();
+#ifdef __linux__
+int getch(void);
+#endif
 
 int main()
 {
 	Make();
 	Print();
-	while (over)
+	while (over==0)
 	{
-		#ifdef __WIN32
-			system("cls");
-		#endif
-		#ifdef __linux__
-			system("clear");
-		#endif
+		Clear();
 		Print();
-		Open();
+		//scanf("%d%d", &X, &Y);//获取将要打开的格子坐标
+		Click();
+		Open(X,Y);
 		Win();
 	}
 	Print();
+	if(over==1)
+		printf("You \033[1;32mWIN\033[0m!!!\n");
+	if(over==-1)
+		printf("You click the mine in \033[1;31m(%d,%d)\033[0m. You \033[1;31mLOSE\033[0m.\n", X, Y);
 	printf("\nPress ENTER to exit"); 
-	getchar();
 	getchar();
 	return 0;
 }
@@ -46,18 +55,13 @@ void Make()
 {
 	while (1)//获取合法的输入数据
 	{
-		printf("Please enter the number of rows and columns of the map (the maxium map is 30*30), separated by spaces:");
+		printf("Please enter the number of rows and columns of the map (the maxium map is 30*30), separated by space:");
 		scanf("%d%d", &size_l, &size_c);
 		printf("Please enter the total number of mines:");
 		scanf("%d", &num);
 		if (num > size_l * size_c)//判定雷数是否超过格子总数
 		{
-			#ifdef _WIN32
-				system("cls");
-			#endif
-			#ifdef __linux__
-				system("clear");
-			#endif
+			Clear();
 			printf("**ERROR:Illegal values!**\n");
 		}
 		else break;
@@ -104,7 +108,6 @@ void Print()
 		printf("%2d> ", i);//输出行坐标及分隔线
 		for (j = 1; j <= size_c; j++)
 		{
-			//printf("  ");
 			if (floors[i][j])
 			{
 				if (box[i][j] == 9)
@@ -126,34 +129,51 @@ void Print()
 				else if (box[i][j] == 1)
 					printf("\033[1;34m", box[i][j]);
 				
+				if(i==X&&j==Y)
+					printf(" >");
+				else
+					printf("  ");
+
 				if (box[i][j] == 0)
-					printf("     ");//以空格代替0输出被打开的空格子
+					printf(" ");//以空格代替0输出被打开的空格子
 				else if (box[i][j]>0&&box[i][j]<9)
-					printf("  %d  ",box[i][j]);
+					printf("%d",box[i][j]);
 				else if (box[i][j] == 9)
-					printf("  X  ");//以粗体红色输出地雷
+					printf("X");//以粗体红色输出地雷
+				
+				if(i==X&&j==Y)
+					printf("< ");
+				else
+					printf("  ");
 				printf("\033[0m");
 			}
 			else
-				printf("  ?  ");//输出未打开的格子
-			//printf("  ");
+			{
+				if(i==X&&j==Y)
+					printf(" >");
+				else
+					printf("  ");
+				printf("?");//输出未打开的格子
+				if(i==X&&j==Y)
+					printf("< ");
+				else
+					printf("  ");
+			}
 		}
 		printf("\n");
 	}
 }
 
-void Open()
+void Open(int x,int y)
 {
 	int i, j, k, l;
-	int x, y;
 	bool ok = 1;
 	printf("\n\nPlease enter the coordinates (x,y) of the boxes you want to open, ");
 	printf("separated by spaces between x and y:\n");
-	scanf("%d%d", &x, &y);//获取将要打开的格子坐标
 	if (x > size_l || y > size_c) return;//如果超过地图范围，则返回主函数，主函数通过while实现重新输入
 	if (box[x][y] == 9)//点击到了有地雷的格子，判定游戏失败
 	{
-		Lose(x, y);
+		Lose();
 		return;
 	}
 	floors[x][y] = 2;//以2表示周围格子待更新的打开格子
@@ -187,16 +207,10 @@ void Open()
 	}
 }
 
-void Lose(int x, int y)
+void Lose()
 {
 	int i, j;
-	#ifdef __WIN32
-		system("cls");
-	#endif
-	#ifdef __linux__
-		system("clear");
-	#endif
-	printf("You click the mine in \033[1;31m(%d,%d)\033[0m. You lose.\n", x, y);
+	Clear();
 	for (i = 1; i <= size_l; i++)//打开全图格子
 	{
 		for (j = 1; j <= size_c; j++)
@@ -204,7 +218,7 @@ void Lose(int x, int y)
 			floors[i][j] = 1;
 		}
 	}
-	over = 0;
+	over = -1;
 }
 
 void Win()
@@ -221,14 +235,8 @@ void Win()
 	}
 	if (sum == num)//判定游戏胜利
 	{
-		over = 0;
-		#ifdef __WIN32
-			system("cls");
-		#endif
-		#ifdef __linux__
-			system("clear");
-		#endif
-		printf("You win!!!\n");
+		over =1;
+		Clear();
 		for (i = 1; i <= size_l; i++)
 		{
 			for (j = 1; j <= size_c; j++)
@@ -238,3 +246,62 @@ void Win()
 		}
 	}
 }
+
+void Click()
+{
+	char delta;
+	while(1)
+	{
+		printf("↑ :W/K/8   ↓ :S/J/2    ← :A/H/4    → :D/L/6\nconfirm:Z/SPACE\n");
+		delta=getch();
+		if(delta=='Z'||delta=='z'||delta==' ')
+			return;
+		if((delta=='W'||delta=='w'||delta=='8'||delta=='k'||delta=='K')&&X>0)
+			X--;	
+		if((delta=='S'||delta=='s'||delta=='2'||delta=='j'||delta=='K')&&X<=size_l)
+			X++;
+		if((delta=='A'||delta=='a'||delta=='4'||delta=='h'||delta=='H')&&Y>0)
+			Y--;
+		if((delta=='D'||delta=='d'||delta=='6'||delta=='l'||delta=='L')&&Y<=size_c)
+			Y++;
+		if(X==size_l+1)
+			X=1;
+		if(X==0)
+			X=size_l;
+		if(Y==size_c+1)
+			Y=1;
+		if(Y==0)
+			Y=size_c;
+		Clear();
+		Print();
+	}
+}
+
+void Clear()
+{
+	#ifdef __WIN32
+	system("cls");
+	#endif
+	#ifdef __linux__
+	system("clear");
+	#endif
+}
+
+#ifdef __linux__
+int getch(void)
+{
+	struct termios tm,tm_old;
+	int fd = 0,ch;
+
+	if(tcgetattr(fd,&tm) < 0)
+		return -1;
+	tm_old=tm;
+	cfmakeraw(&tm);
+	if(tcsetattr(fd,TCSANOW,&tm) < 0)
+		return -1;
+	ch=getchar();
+	if(tcsetattr(fd,TCSANOW,&tm_old) < 0)
+		return -1;
+	return ch;
+}
+#endif
