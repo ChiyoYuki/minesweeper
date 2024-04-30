@@ -3,11 +3,13 @@
 ~~是的我就是跳号带师~~  
 1.添加了linux适配  
 采用了  
-  `#ifdef __linux__`  
-  `//linux代码`
-  `#else`  
-  `//windows代码`  
-  `#endif`  
+```
+#ifdef __linux__  
+//linux代码  
+#else  
+//windows代码    
+#endif  
+```  
 不知道为什么不能使用`#ifdef __WIN32`  
 2.为每个数字添加了不同的颜色  
 3.调整了行间距  
