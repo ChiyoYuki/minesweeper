@@ -1,6 +1,6 @@
 /*
  * author:ChiyoYuki
- * time:2024/04/30 11:58
+ * time:2024/04/30 12:12
  * version:2.0.0
  */
 
@@ -18,6 +18,7 @@
 
 int box[32][32], floors[32][32];//box保存格子的类型，floor判断是否被打开
 int over, X = 1, Y = 1;//判断游戏是否结束
+int nth;
 int size_l, size_c, num; // size:[1,30]
 
 void Make();  // 生成雷
@@ -50,8 +51,8 @@ int main()
 	if (over == -1)
 		printf("You click the mine in \033[1;31m(%d,%d)\033[0m. You \033[1;31mLOSE\033[0m.\n", X, Y);
 	printf("\nPress ENTER to exit");
-	getchar();
-	getchar();
+	nth=getchar();
+	nth=getchar();
 	return 0;
 }
 
@@ -60,9 +61,9 @@ void Make()
 	while (1)//获取合法的输入数据
 	{
 		printf("Please enter the number of rows and columns of the map (the maxium map is 30*30), separated by space:");
-		scanf("%d%d", &size_l, &size_c);
+		nth=scanf("%d%d", &size_l, &size_c);
 		printf("Please enter the total number of mines:");
-		scanf("%d", &num);
+		nth=scanf("%d", &num);
 		if (num > size_l * size_c)//判定雷数是否超过格子总数
 		{
 			Clear();
@@ -117,21 +118,21 @@ void Print()
 				if (box[i][j] == 9)
 					printf("\033[1;30;41m");//以粗体红色输出地雷
 				else if (box[i][j] == 8)
-					printf("\033[1;37m", box[i][j]);
+					printf("\033[1;37m");
 				else if (box[i][j] == 7)
-					printf("\033[1;30m", box[i][j]);
+					printf("\033[1;30m");
 				else if (box[i][j] == 6)
-					printf("\033[1;36m", box[i][j]);
+					printf("\033[1;36m");
 				else if (box[i][j] == 5)
-					printf("\033[1;33m", box[i][j]);
+					printf("\033[1;33m");
 				else if (box[i][j] == 4)
-					printf("\033[1;35m", box[i][j]);
+					printf("\033[1;35m");
 				else if (box[i][j] == 3)
-					printf("\033[1;31m", box[i][j]);
+					printf("\033[1;31m");
 				else if (box[i][j] == 2)
-					printf("\033[1;32m", box[i][j]);
+					printf("\033[1;32m");
 				else if (box[i][j] == 1)
-					printf("\033[1;34m", box[i][j]);
+					printf("\033[1;34m");
 
 				if (i == X && j == Y)
 					printf(" >");
@@ -256,9 +257,9 @@ void Click()
 	char delta;
 	while (1)
 	{
-		printf("↑ :W/K/8   ↓ :S/J/2    ← :A/H/4    → :D/L/6\nconfirm:Z/SPACE\n");
+		printf("Up :W/K/8   Down :S/J/2    Left :A/H/4    Right :D/L/6\nconfirm:Z/SPACE/5\n");
 		delta = _getch();
-		if (delta == 'Z' || delta == 'z' || delta == ' ')
+		if (delta == 'Z' || delta == 'z' || delta == ' '||delta=='5')
 			return;
 		if ((delta == 'W' || delta == 'w' || delta == '8' || delta == 'k' || delta == 'K') && X > 0)
 			X--;
