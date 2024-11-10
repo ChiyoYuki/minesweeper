@@ -16,16 +16,16 @@
 #include <conio.h>
 #endif
 
-int box[32][32], floors[32][32];//box保存格子的类型，floor判断是否被打开
-int over, X = 1, Y = 1;//判断游戏是否结束
+int box[32][32], floors[32][32]; // box保存格子的类型，floor判断是否被打开
+int over, X = 1, Y = 1;			 // 判断游戏是否结束
 int nth;
 int size_l, size_c, num; // size:[1,30]
 
-void Make();  // 生成雷
-void Print(); // 输出当前情况
-void Open(int x, int y);//打开格子
-void Lose();//判定游戏失败 输出被点击的地雷坐标
-void Win();//判断游戏是否满足胜利条件
+void Make();			 // 生成雷
+void Print();			 // 输出当前情况
+void Open(int x, int y); // 打开格子
+void Lose();			 // 判定游戏失败 输出被点击的地雷坐标
+void Win();				 // 判断游戏是否满足胜利条件
 void Click();
 void Clear();
 #ifdef __linux__
@@ -40,7 +40,7 @@ int main()
 	{
 		Clear();
 		Print();
-		//scanf("%d%d", &X, &Y);//获取将要打开的格子坐标
+		// scanf("%d%d", &X, &Y);//获取将要打开的格子坐标
 		Click();
 		Open(X, Y);
 		Win();
@@ -51,30 +51,32 @@ int main()
 	if (over == -1)
 		printf("You click the mine in \033[1;31m(%d,%d)\033[0m. You \033[1;31mLOSE\033[0m.\n", X, Y);
 	printf("\nPress ENTER to exit");
-	nth=getchar();
-	nth=getchar();
+	nth = getchar();
+	nth = getchar();
 	return 0;
 }
 
 void Make()
 {
-	while (1)//获取合法的输入数据
+	while (1) // 获取合法的输入数据
 	{
-		printf("Please enter the number of rows and columns of the map (the maxium map is 30*30), separated by space:");
-		nth=scanf("%d%d", &size_l, &size_c);
+		printf("Please enter the number of rows and columns of the map");
+		printf("(the maxium map is 30*30), separated by space:");
+		nth = scanf("%d%d", &size_l, &size_c);
 		printf("Please enter the total number of mines:");
-		nth=scanf("%d", &num);
-		if (num > size_l * size_c)//判定雷数是否超过格子总数
+		nth = scanf("%d", &num);
+		if (num > size_l * size_c) // 判定雷数是否超过格子总数
 		{
 			Clear();
 			printf("**ERROR:Illegal values!**\n");
 		}
-		else break;
+		else
+			break;
 	}
 	int i, j, k, l;
 	int sum = num, x, y;
 	srand(time(NULL));
-	while (sum)//生成num个雷的随机坐标
+	while (sum) // 生成num个雷的随机坐标
 	{
 		x = rand() % size_l + 1;
 		y = rand() % size_c + 1;
@@ -97,26 +99,26 @@ void Print()
 {
 	int i, j;
 	printf("  ");
-	for (i = 1; i <= size_c; i++)//输出列坐标
+	for (i = 1; i <= size_c; i++) // 输出列坐标
 	{
 		printf("   %2d", i);
 	}
 	printf("\n  ");
-	for (i = 1; i <= size_c; i++)//输出列坐标与第一行的分隔线
+	for (i = 1; i <= size_c; i++) // 输出列坐标与第一行的分隔线
 	{
 		printf("    v");
 	}
 	printf("\n");
 	for (i = 1; i <= size_l; i++)
 	{
-		//printf("\n");
-		printf("%2d> ", i);//输出行坐标及分隔线
+		// printf("\n");
+		printf("%2d> ", i); // 输出行坐标及分隔线
 		for (j = 1; j <= size_c; j++)
 		{
 			if (floors[i][j])
 			{
 				if (box[i][j] == 9)
-					printf("\033[1;30;41m");//以粗体红色输出地雷
+					printf("\033[1;30;41m"); // 以粗体红色输出地雷
 				else if (box[i][j] == 8)
 					printf("\033[1;37m");
 				else if (box[i][j] == 7)
@@ -140,11 +142,11 @@ void Print()
 					printf("  ");
 
 				if (box[i][j] == 0)
-					printf(" ");//以空格代替0输出被打开的空格子
+					printf(" "); // 以空格代替0输出被打开的空格子
 				else if (box[i][j] > 0 && box[i][j] < 9)
 					printf("%d", box[i][j]);
 				else if (box[i][j] == 9)
-					printf("X");//以粗体红色输出地雷
+					printf("X"); // 以粗体红色输出地雷
 
 				if (i == X && j == Y)
 					printf("< ");
@@ -158,7 +160,7 @@ void Print()
 					printf(" >");
 				else
 					printf("  ");
-				printf("?");//输出未打开的格子
+				printf("?"); // 输出未打开的格子
 				if (i == X && j == Y)
 					printf("< ");
 				else
@@ -175,40 +177,29 @@ void Open(int x, int y)
 	bool ok = 1;
 	printf("\n\nPlease enter the coordinates (x,y) of the boxes you want to open, ");
 	printf("separated by spaces between x and y:\n");
-	if (x > size_l || y > size_c) return;//如果超过地图范围，则返回主函数，主函数通过while实现重新输入
-	if (box[x][y] == 9)//点击到了有地雷的格子，判定游戏失败
+	if (x > size_l || y > size_c)
+		return;			// 如果超过地图范围，则返回主函数，主函数通过while实现重新输入
+	if (box[x][y] == 9) // 点击到了有地雷的格子，判定游戏失败
 	{
 		Lose();
 		return;
 	}
-	floors[x][y] = 2;//以2表示周围格子待更新的打开格子
+	floors[x][y] = 2; // 以2表示周围格子待更新的打开格子
 	while (ok)
 	{
 		ok = 0;
 		for (i = 1; i <= size_l; i++)
-		{
 			for (j = 1; j <= size_c; j++)
-			{
 				if (floors[i][j] == 2)
 				{
-					floors[i][j] = 1;//以1表示周围格子已更新的打开格子
+					floors[i][j] = 1; // 以1表示周围格子已更新的打开格子
 					ok = 1;
-					if (box[i][j] == 0)//如果被标识为2的格子为空格子，则打开周围一周的格子
-					{
+					if (box[i][j] == 0) // 如果被标识为2的格子为空格子，则打开周围一周的格子
 						for (k = i - 1; k <= i + 1; k++)
-						{
 							for (l = j - 1; l <= j + 1; l++)
-							{
 								if (floors[k][l] == 0)
-								{
 									floors[k][l] = 2;
-								}
-							}
-						}
-					}
 				}
-			}
-		}
 	}
 }
 
@@ -216,13 +207,9 @@ void Lose()
 {
 	int i, j;
 	Clear();
-	for (i = 1; i <= size_l; i++)//打开全图格子
-	{
+	for (i = 1; i <= size_l; i++) // 打开全图格子
 		for (j = 1; j <= size_c; j++)
-		{
 			floors[i][j] = 1;
-		}
-	}
 	over = -1;
 }
 
@@ -230,25 +217,17 @@ void Win()
 {
 	int i, j;
 	int sum = 0;
-	for (i = 1; i <= size_l; i++)//计算未打开格子的数目
-	{
+	for (i = 1; i <= size_l; i++) // 计算未打开格子的数目
 		for (j = 1; j <= size_c; j++)
-		{
 			if (floors[i][j] == 0)
 				sum++;
-		}
-	}
-	if (sum == num)//判定游戏胜利
+	if (sum == num) // 判定游戏胜利
 	{
 		over = 1;
 		Clear();
 		for (i = 1; i <= size_l; i++)
-		{
 			for (j = 1; j <= size_c; j++)
-			{
 				floors[i][j] = 1;
-			}
-		}
 	}
 }
 
@@ -259,16 +238,45 @@ void Click()
 	{
 		printf("Up :W/K/8   Down :S/J/2    Left :A/H/4    Right :D/L/6\nconfirm:Z/SPACE/5\n");
 		delta = _getch();
-		if (delta == 'Z' || delta == 'z' || delta == ' '||delta=='5')
+		switch (delta)
+		{
+		case 'Z':
+		case 'z':
+		case ' ':
+		case '5':
 			return;
-		if ((delta == 'W' || delta == 'w' || delta == '8' || delta == 'k' || delta == 'K') && X > 0)
+			break;
+		case 'W':
+		case 'w':
+		case '8':
+		case 'k':
+		case 'K':
 			X--;
-		if ((delta == 'S' || delta == 's' || delta == '2' || delta == 'j' || delta == 'K') && X <= size_l)
+			break;
+		case 'S':
+		case 's':
+		case '2':
+		case 'j':
+		case 'J':
 			X++;
-		if ((delta == 'A' || delta == 'a' || delta == '4' || delta == 'h' || delta == 'H') && Y > 0)
+			break;
+		case 'A':
+		case 'a':
+		case '4':
+		case 'h':
+		case 'H':
 			Y--;
-		if ((delta == 'D' || delta == 'd' || delta == '6' || delta == 'l' || delta == 'L') && Y <= size_c)
+			break;
+		case 'D':
+		case 'd':
+		case '6':
+		case 'l':
+		case 'L':
 			Y++;
+			break;
+		default:
+			break;
+		}
 		if (X == size_l + 1)
 			X = 1;
 		if (X == 0)
